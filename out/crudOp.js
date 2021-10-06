@@ -71,21 +71,18 @@ var router = express.Router();
 var fs = require("fs");
 var employee = __importStar(require("./emp_info"));
 router.post('/add', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, name, emp_level, mobile, email, date, managerId, employees, employees, emp, stringifyData;
+    var _a, name, emp_level, mobile, email, date, managerId, employees, employees, rest, emp, stringifyData;
     return __generator(this, function (_b) {
         _a = req.body, name = _a.name, emp_level = _a.emp_level, mobile = _a.mobile, email = _a.email, date = _a.date, managerId = _a.managerId;
         // const employee: Employee = req.body;
         //console.log(employee)
-        //let add: employee.Employee = new employee.add_Id(name, emp_level, mobile, email, date)
+        //let add: employee.Employee = new employee.add_Id(name, emp_level, mobile, email, date,)
         //    let add: employee.Employee = req.body;
         //    console.log(add)
         //let user = new Emp();
         //console.log(user)
         //    let emp;
         try {
-            //let rest = employee.IsEmp(add)
-            // console.log(rest);
-            //if(rest==true){
             if (emp_level === "Manager") {
                 employees = new employee.add_Id(name, emp_level, mobile, email, date);
                 console.log(employees);
@@ -94,24 +91,27 @@ router.post('/add', function (req, res) { return __awaiter(void 0, void 0, void 
                 employees = new employee.report(name, emp_level, mobile, email, date, managerId);
                 console.log(employees);
             }
-            emp = fs.readFileSync("employee_data.js");
-            emp = JSON.parse(emp);
-            //console.log(employees);
-            emp.push(employees);
-            stringifyData = JSON.stringify(emp);
-            fs.writeFileSync("employee_data.js", stringifyData);
-            // console.log(data);
-            //res.send("successfully added");
-            res.send({
-                message: "Added successfully",
-            });
+            rest = employee.IsEmp(employees);
+            if (rest == true) {
+                emp = fs.readFileSync("employee_data.js");
+                emp = JSON.parse(emp);
+                //console.log(employees);
+                emp.push(employees);
+                stringifyData = JSON.stringify(emp);
+                fs.writeFileSync("employee_data.js", stringifyData);
+                // console.log(data);
+                //res.send("successfully added");
+                res.send({
+                    message: "Added successfully",
+                });
+            }
+            else {
+                res.send({
+                    message: "enter valid data",
+                    response: null
+                });
+            }
         }
-        // else{
-        //    res.send({
-        //    message:"enter valid data",
-        //    response:null
-        //    })
-        //    }
         catch (err) {
             res.send({
                 message: "Error.",

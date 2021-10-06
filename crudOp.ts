@@ -9,12 +9,10 @@ import{add_Id,report} from "./emp_info";
 router.post('/add', async(req : Request,res: Response) =>
 {
 
-
-       // "use strict";
       const  {  name, emp_level, mobile, email, date, managerId } = req.body;
       // const employee: Employee = req.body;
        //console.log(employee)
-       //let add: employee.Employee = new employee.add_Id(name, emp_level, mobile, email, date)
+       //let add: employee.Employee = new employee.add_Id(name, emp_level, mobile, email, date,)
     //    let add: employee.Employee = req.body;
     //    console.log(add)
        //let user = new Emp();
@@ -22,22 +20,19 @@ router.post('/add', async(req : Request,res: Response) =>
     //    let emp;
 
        try{
-
-
-            //let rest = employee.IsEmp(add)
-      // console.log(rest);
-            //if(rest==true){
           
 			if(emp_level==="Manager")
 			{
 				var employees: employee.Employee = new employee.add_Id(name, emp_level, mobile, email, date)
-                console.log(employees)
+                 console.log(employees)
 			}
 			else 
 			{
 				var employees: employee.Employee = new employee.report(name, emp_level, mobile, email, date,managerId)
                 console.log(employees)
 			}
+            let rest = employee.IsEmp(employees)
+            if(rest==true){
 
             let emp = fs.readFileSync("employee_data.js");
             emp = JSON.parse(emp);
@@ -56,13 +51,13 @@ router.post('/add', async(req : Request,res: Response) =>
                 message :"Added successfully",
             });
             }
-            // else{
-            //    res.send({
-            //    message:"enter valid data",
-            //    response:null
-            //    })
-        //    }
-    
+            else{
+               res.send({
+               message:"enter valid data",
+               response:null
+               })
+           }
+        }
     catch (err) {
         res.send({
             message: `Error.`,

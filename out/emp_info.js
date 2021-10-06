@@ -20,9 +20,14 @@ var fs = require("fs");
 var uuid_1 = require("uuid");
 function IsEmp(args) {
     //console.log(args);
-    //console.log(args.id);
+    if ((typeof (args.managerId) == "string") || (typeof (args.managerId) == undefined)) {
+        console.log("true");
+    }
+    else {
+        console.log("false");
+    }
     if ((typeof (args.id) == "string") && (typeof (args.name) == "string") && (typeof (args.emp_level) == "string") && (typeof (args.mobile) == "number")
-        && (typeof (args.date) == "string") && (typeof (args.managerId) == "string" || undefined)) {
+        && (typeof (args.date) == "string") && ((typeof (args.managerId) == "string") || (typeof (args.managerId) == undefined))) {
         // console.log( typeof(args.id));
         //console.log(typeof(args.date));
         return true;
@@ -111,7 +116,7 @@ var report = /** @class */ (function (_super) {
     __extends(report, _super);
     function report(name, emp_level, mobile, email, date, managerId) {
         var _this = _super.call(this, name, emp_level, mobile, email, date) || this;
-        _this.manager = "Manager";
+        _this.Mentor = "Manager";
         _this.managerId = managerId;
         return _this;
     }

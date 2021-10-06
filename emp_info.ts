@@ -7,14 +7,19 @@ export interface Employee {
     mobile: number;
     email:string;
     date: string;
-    managerId?: string;
+    managerId?: string | undefined;
   }
   export function IsEmp(args: Employee): boolean {
     //console.log(args);
-    //console.log(args.id);
+    if((typeof(args.managerId) == "string") || (typeof(args.managerId) == undefined)){
+      console.log("true")
+    }
+    else{
+      console.log("false")
+    }
   
    if ( (typeof(args.id)=="string")&&(typeof(args.name)=="string") && (typeof(args.emp_level)== "string") && (typeof(args.mobile) == "number")
-   && (typeof(args.date) == "string") &&(typeof (args.managerId)== "string"|| undefined))
+   && (typeof(args.date) == "string") && ((typeof(args.managerId) == "string")|| (typeof(args.managerId) == undefined)))
   { 
      // console.log( typeof(args.id));
       //console.log(typeof(args.date));
@@ -81,14 +86,6 @@ export function present(args:Employee): boolean{
 //       console.log(data);
 //     }
 
-  
-
-    //   if (prev.mobile != null) {
-        
-    //   if( data[i].mobile == prev.mobile) {
-    //         data[i].mobile = Employeenew.mobile;
-    //     }
-    //   }
 
     //     const stringifyData = JSON.stringify(data);
 		// 	fs.writeFileSync("employee_data.js", stringifyData);
@@ -127,7 +124,7 @@ export function present(args:Employee): boolean{
 
 export class report extends add_Id implements Employee  {
   
-				readonly manager:string="Manager";
+			readonly Mentor:string="Manager";
 				managerId:string;
 				constructor(name:string,emp_level:string, mobile:number,email:string,date:string,managerId:string)
 				{
