@@ -5,29 +5,31 @@ var fs = require("fs");
 var Emp = /** @class */ (function () {
     function Emp() {
     }
-    Emp.prototype.IsEmp = function (args) {
-        //console.log(args);
-        //console.log(args.id);
-        if ((typeof (args.id) == "string") && (typeof (args.name) == "string") && (typeof (args.emp_level) == "string") && (typeof (args.mobile) == "number")
-            && (typeof (args.date) == "string")) {
-            // console.log( typeof(args.id));
-            //console.log(typeof(args.date));
-            return true;
-            // console.log(x.subtr(1)); // Error, 'subtr' does not exist on `string`
-            // console.log(x.substr(1)); // OK
-        }
-        else {
-            return false;
-        }
-    };
-    Emp.prototype.present = function (args) {
-        if (args == "") {
-            return true;
-        }
-        else {
-            return false;
-        }
-    };
+    //   IsEmp(args: Employee): boolean {
+    //       //console.log(args);
+    //       //console.log(args.id);
+    //      if ( (typeof(args.id)=="string")&&(typeof(args.name)=="string") && (typeof(args.emp_level)== "string") && (typeof(args.mobile) == "number")
+    //      && (typeof(args.date) == "string"))
+    //     { 
+    //        // console.log( typeof(args.id));
+    //         //console.log(typeof(args.date));
+    //         return true;
+    //         // console.log(x.subtr(1)); // Error, 'subtr' does not exist on `string`
+    //         // console.log(x.substr(1)); // OK
+    //     }
+    //     else{
+    //         return false;
+    //     }
+    // }
+    // present(args:string): boolean{
+    //     if(args == "")
+    //     {
+    //         return true;
+    //     }
+    //     else{
+    //         return false;
+    //     }
+    // }
     // setId(id:Employee, newid:Employee): boolean {
     //     //console.log(id);
     //     //console.log(newid);
@@ -46,15 +48,15 @@ var Emp = /** @class */ (function () {
     //     return false;
     //   }
     Emp.prototype.setName = function (name, newname) {
-        //console.log(id);
-        //console.log(newid);
+        //     //console.log(id);
+        //     //console.log(newid);
         var data = fs.readFileSync("employee_data.js");
         data = JSON.parse(data);
         for (var i = 0; i < data.length; i++) {
-            console.log(data[i].name);
+            //         //console.log(data[i].name)
             if (data[i].name == name) {
                 data[i].name = newname;
-                //Save data
+                //         //Save data
                 var stringifyData = JSON.stringify(data);
                 fs.writeFileSync("employee_data.js", stringifyData);
                 return true;

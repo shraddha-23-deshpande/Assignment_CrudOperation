@@ -2,9 +2,8 @@ const express = require('express')
 const router=express.Router()
 const fs = require("fs");
 import { Request, Response } from "express";
-import {Emp} from './function';
-import { add_Id } from "./add_Id";
-import {Employee} from "./emp_info";
+import * as employee from "./emp_info";
+import{add_Id,report} from "./emp_info";
 
 
 router.post('/add', async(req : Request,res: Response) =>
@@ -12,39 +11,59 @@ router.post('/add', async(req : Request,res: Response) =>
 
 
        // "use strict";
-      const  {  name, emp_level, mobile, email, date } = req.body;
+      const  {  name, emp_level, mobile, email, date, managerId } = req.body;
       // const employee: Employee = req.body;
        //console.log(employee)
-       let add: Employee= new add_Id(name, emp_level, mobile, email, date);
-       let user = new Emp();
+       //let add: employee.Employee = new employee.add_Id(name, emp_level, mobile, email, date)
+    //    let add: employee.Employee = req.body;
+    //    console.log(add)
+       //let user = new Emp();
        //console.log(user)
+    //    let emp;
 
        try{
-       let rest = user.IsEmp(add)
-      // console.log(rest);
-       if(rest==true){
-        let emp = fs.readFileSync("employee_data.js");
-        emp = JSON.parse(emp);
-        
-        emp.push(add);
-        //Save data
-        const stringifyData = JSON.stringify(emp);
-        fs.writeFileSync("employee_data.js", stringifyData);
-       // console.log(data);
 
-        //res.send("successfully added");
-        res.send({
-            message :"Added successfully",
-        });
-    }
-    else{
-        res.send({
-            message:"enter valid data",
-            response:null
-        })
-    }
-    }
-     catch (err) {
+
+            //let rest = employee.IsEmp(add)
+      // console.log(rest);
+            //if(rest==true){
+          
+			if(emp_level==="Manager")
+			{
+				var employees: employee.Employee = new employee.add_Id(name, emp_level, mobile, email, date)
+                console.log(employees)
+			}
+			else 
+			{
+				var employees: employee.Employee = new employee.report(name, emp_level, mobile, email, date,managerId)
+                console.log(employees)
+			}
+
+            let emp = fs.readFileSync("employee_data.js");
+            emp = JSON.parse(emp);
+            
+            //console.log(employees);
+            
+
+            emp.push(employees);
+            //Save data
+            const stringifyData = JSON.stringify(emp);
+            fs.writeFileSync("employee_data.js", stringifyData);
+            // console.log(data);
+
+            //res.send("successfully added");
+            res.send({
+                message :"Added successfully",
+            });
+            }
+            // else{
+            //    res.send({
+            //    message:"enter valid data",
+            //    response:null
+            //    })
+        //    }
+    
+    catch (err) {
         res.send({
             message: `Error.`,
             response: null,
@@ -76,7 +95,7 @@ router.get('/find/:id', async(req: Request,res: Response) =>{
         try {
 			//Get data
 			const Id =  (req.params.id)
-            let emp = new Emp()
+            //let emp = new Emp()
             //console.log(Id);
             //let sm = user.IsId(Id)
             //console.log(sm);
@@ -87,8 +106,8 @@ router.get('/find/:id', async(req: Request,res: Response) =>{
 			//console.log(emp);
 			//find id
 			//const employee = emp.filter((e: { id: any; })=> e.id == Id )
-            let user = data.find((user: Employee) => user.id == Id);
-           let check = emp.present(user)
+            let user = data.find((user: employee.Employee) => user.id == Id);
+           let check = employee.present(user)
            if(check == false)
             {
 			res.send({
@@ -114,15 +133,16 @@ router.get('/find/:id', async(req: Request,res: Response) =>{
 router.delete('/delete/:id',async(req: Request,res: Response)=>{
     try{
         const Id = req.params.id
-        let obj = new Emp();
+        //let obj = new Emp();
         let data = fs.readFileSync("employee_data.js");
 		data = JSON.parse(data);
         //var num = parseInt(Id)
         
-            let user = data.find((user: Employee) => user.id == Id);
+            let user = data.find((user: employee.Employee) => user.id == Id);
             //console.log(user); 
            //const employee = data.find((e: { id: any; })=> e.id == Id )
-           let check = obj.present(user)
+
+           let check = employee.present(user)
            if(check == true)
             {
 			res.send({
@@ -158,17 +178,17 @@ router.patch('/update/:id',async(req: Request,res:Response)=>{
 
     try{
 
-        var employee=req.body
+        let empdata=req.body
         const Id = req.params.id
         //console.log(employee.id);
-        let obj = new Emp();
+        //let obj = new Emp();
         let data = fs.readFileSync("employee_data.js");
 		data = JSON.parse(data);
         //var num = parseInt(Id)
         
-        let user = data.find((user: Employee) => user.id == Id);
-        console.log(user); 
-        let check = obj.present(user)
+        let user = data.findIndex((user: employee.Employee) => user.id == Id);
+        //console.log(user); 
+        let check = employee.present(user)
         if(check == true)
         {
 		res.send({
@@ -176,43 +196,12 @@ router.patch('/update/:id',async(req: Request,res:Response)=>{
 		});
         }
         else{
-            // if(employee.id != undefined){
-            // obj.setId(user.id,employee.id); 
-            // if(result==true){
-            //     res.send({
-            //         message: "id is updated successfully.",
-            //     });
-            // }
-            // console.log("id updated successfully")
-            // }
-            if(employee.name != undefined){
-            obj.setName(user.name,employee.name);
-            console.log("name is updated successfully")
-                // if(result==true){
-                //     res.send({
-                        
-                //         message: "id is updated successfully.",
-                //     });
+            // if((empdata.name != undefined) && (empdata.name == "priya")){
+            //     return true;
 
-                // }
-            }
-            if(employee.mobile != undefined){
-                obj.setMob(user.mobile,employee.mobile)
-                console.log("mobile is updated successfully")
-            }
-            if(employee.emp_level != undefined){
-                obj.setlevel(user.emp_level,employee.emp_level)
-                console.log("emp_level is updated successfully")
-            }
-            if(employee.email != undefined){
-                obj.setEmail(user.email,employee.email)
-                console.log("email is updated successfully")
-            }
-            if(employee.date != undefined){
-                obj.setDate(user.date_of_join,employee.date_of_join)
-                console.log("date is updated successfully")
-            }
-            //emp.push(user); 
+            data[user]={...data[user],...empdata}
+            const stringifyData = JSON.stringify(data);
+ 			fs.writeFileSync("employee_data.js", stringifyData);
 
             	res.send({
 				message: "employee data successfully Updated"
@@ -226,6 +215,8 @@ router.patch('/update/:id',async(req: Request,res:Response)=>{
             response: null,
         });
 		}
+
+        
     
 })
 
