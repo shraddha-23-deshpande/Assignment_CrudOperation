@@ -70,46 +70,56 @@ var express = require('express');
 var router = express.Router();
 var fs = require("fs");
 var employee = __importStar(require("./emp_info"));
+var emp_info_1 = require("./emp_info");
 router.post('/add', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, name, emp_level, mobile, email, date, managerId, employees, employees, rest, emp, stringifyData;
+    var _a, name, emp_level, mobile, email, date, managerId, employees, employees, rest, check, emp, stringifyData;
     return __generator(this, function (_b) {
         _a = req.body, name = _a.name, emp_level = _a.emp_level, mobile = _a.mobile, email = _a.email, date = _a.date, managerId = _a.managerId;
-        // const employee: Employee = req.body;
-        //console.log(employee)
-        //let add: employee.Employee = new employee.add_Id(name, emp_level, mobile, email, date,)
-        //    let add: employee.Employee = req.body;
-        //    console.log(add)
-        //let user = new Emp();
-        //console.log(user)
-        //    let emp;
         try {
             if (emp_level === "Manager") {
-                employees = new employee.add_Id(name, emp_level, mobile, email, date);
-                console.log(employees);
+                employees = new employee.AddManagerData(name, emp_level, mobile, email, date);
+                // console.log(employees)
             }
             else {
-                employees = new employee.report(name, emp_level, mobile, email, date, managerId);
-                console.log(employees);
+                employees = new employee.AddEmployeeData(name, emp_level, mobile, email, date, managerId);
+                //console.log(employees)
             }
-            rest = employee.IsEmp(employees);
-            if (rest == true) {
-                emp = fs.readFileSync("employee_data.js");
-                emp = JSON.parse(emp);
-                //console.log(employees);
-                emp.push(employees);
-                stringifyData = JSON.stringify(emp);
-                fs.writeFileSync("employee_data.js", stringifyData);
-                // console.log(data);
-                //res.send("successfully added");
+            rest = employee.ValidateData(employees) //check information is valid or not.
+            ;
+            console.log(employees);
+            console.log(rest);
+            if (rest == false) {
                 res.send({
-                    message: "Added successfully",
-                });
-            }
-            else {
-                res.send({
-                    message: "enter valid data",
+                    status: 400,
+                    message: "Enter valid data",
                     response: null
                 });
+            }
+            else {
+                check = employee.check_Emp_level(employees) // check employee position is appropriate or not.
+                ;
+                if (check == false) {
+                    res.send({
+                        status: 400,
+                        message: "Enter employee position from only these options- Manager, Tester, Developer and Intern.",
+                        response: null
+                    });
+                }
+                else {
+                    emp = fs.readFileSync("employee_data.js");
+                    emp = JSON.parse(emp);
+                    //console.log(employees);
+                    emp.push(employees);
+                    stringifyData = JSON.stringify(emp);
+                    fs.writeFileSync("employee_data.js", stringifyData);
+                    // console.log(data);
+                    //res.send("successfully added");
+                    res.send({
+                        status: 201,
+                        message: "Employee Added successfully",
+                        response: emp
+                    });
+                }
             }
         }
         catch (err) {
@@ -121,45 +131,57 @@ router.post('/add', function (req, res) { return __awaiter(void 0, void 0, void 
         return [2 /*return*/];
     });
 }); });
-router.get('/all', function (req, res) {
-    try {
-        var emp = fs.readFileSync("employee_data.js");
-        emp = JSON.parse(emp);
-        res.send({
-            message: "All Employee Info",
-            response: emp
-        });
-    }
-    catch (err) {
-        res.send({
-            message: "Error.",
-            response: null,
-        });
-    }
-});
+router.get('/all', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var db, data, err_1;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                db = new emp_info_1.Database();
+                return [4 /*yield*/, db.getData()];
+            case 1:
+                data = _a.sent();
+                console.log(data);
+                res.send({
+                    status: 200,
+                    message: "All Employee Info",
+                    response: data
+                });
+                return [3 /*break*/, 3];
+            case 2:
+                err_1 = _a.sent();
+                res.send({
+                    message: "Error.",
+                    response: null,
+                });
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
 router.get('/find/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var Id_1, data, user, check;
+    var Id_1, db, data, user, check;
     return __generator(this, function (_a) {
         try {
             Id_1 = (req.params.id);
-            data = fs.readFileSync("employee_data.js");
-            data = JSON.parse(data);
+            db = new emp_info_1.Database();
+            data = db.getData();
             user = data.find(function (user) { return user.id == Id_1; });
-            check = employee.present(user);
+            check = employee.emp_present(user);
             if (check == false) {
                 res.send({
-                    message: "founded.",
+                    status: 200,
+                    message: "Employee Found.",
                     response: user,
                 });
             }
             else {
                 res.send({
-                    message: "data not present"
+                    status: 400,
+                    message: "Employee is not Exist"
                 });
             }
-            //     const Id = await (req.params.id)	
         }
-        //console.log(employee)
         catch (err) {
             res.send({
                 message: "Error.",
@@ -170,26 +192,27 @@ router.get('/find/:id', function (req, res) { return __awaiter(void 0, void 0, v
     });
 }); });
 router.delete('/delete/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var Id_2, data, user, check, filtered, stringifyData;
+    var Id_2, db, data, user, check, filtered;
     return __generator(this, function (_a) {
         try {
             Id_2 = req.params.id;
-            data = fs.readFileSync("employee_data.js");
-            data = JSON.parse(data);
+            db = new emp_info_1.Database();
+            data = db.getData();
             user = data.find(function (user) { return user.id == Id_2; });
-            check = employee.present(user);
+            check = employee.emp_present(user);
             if (check == true) {
                 res.send({
-                    message: "employee is not present.",
+                    message: "Employee is not exist.",
                 });
             }
             else {
                 filtered = data.filter(function (item) {
                     return item.id != Id_2;
                 });
-                stringifyData = JSON.stringify(filtered);
-                fs.writeFileSync("employee_data.js", stringifyData);
+                //Save data
+                db.saveData(filtered);
                 res.send({
+                    status: 200,
                     message: "employee deleted successfully.",
                     response: filtered
                 });
@@ -205,33 +228,94 @@ router.delete('/delete/:id', function (req, res) { return __awaiter(void 0, void
     });
 }); });
 router.patch('/update/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var empdata, Id_3, data, user, check, stringifyData;
+    var empdata, Id_3, db, data, user, check, check_1, check_2;
     return __generator(this, function (_a) {
         try {
             empdata = req.body;
             Id_3 = req.params.id;
-            data = fs.readFileSync("employee_data.js");
-            data = JSON.parse(data);
+            db = new emp_info_1.Database();
+            data = db.getData();
             user = data.findIndex(function (user) { return user.id == Id_3; });
-            check = employee.present(user);
+            check = employee.emp_present(user);
+            //if not found
             if (check == true) {
                 res.send({
-                    message: "employee is not present.",
+                    message: "Employee is Not Exist.",
                 });
             }
             else {
-                // if((empdata.name != undefined) && (empdata.name == "priya")){
-                //     return true;
-                data[user] = __assign(__assign({}, data[user]), empdata);
-                stringifyData = JSON.stringify(data);
-                fs.writeFileSync("employee_data.js", stringifyData);
-                res.send({
-                    message: "employee data successfully Updated"
-                });
+                data[user] = __assign(__assign({}, data[user]), empdata); // replace data using spread operator
+                check_1 = employee.ValidateData(data[user]) // check data is valid or not.
+                ;
+                if (check_1 == false) {
+                    res.send({
+                        status: 400,
+                        message: "enter valid data",
+                        response: null
+                    });
+                }
+                else {
+                    check_2 = employee.check_Emp_level(data[user]) //check employee level is appropriate or not
+                    ;
+                    if (check_2 == false) {
+                        res.send({
+                            status: 400,
+                            message: "Enter employee position from only these options- Manager, Tester, Developer and Intern.",
+                            response: null
+                        });
+                    }
+                    else {
+                        //Save data
+                        db.saveData(data);
+                        res.send({
+                            status: 200,
+                            message: "employee data successfully Updated",
+                            resonse: data
+                        });
+                    }
+                }
             }
         }
         catch (err) {
             // console.log(err)
+            res.send({
+                message: "Error.",
+                response: null,
+            });
+        }
+        return [2 /*return*/];
+    });
+}); });
+router.get('/findListJunior/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var Id, db, data, i, list, check;
+    return __generator(this, function (_a) {
+        try {
+            Id = (req.params.id);
+            db = new emp_info_1.Database();
+            data = db.getData();
+            list = [];
+            for (i = 0; i < data.length; i++) {
+                if (data[i].managerId == Id) {
+                    list.push(data[i]);
+                    //     console.log(list)  
+                }
+            }
+            check = employee.emp_present(list);
+            if (check == false) {
+                res.send({
+                    status: 200,
+                    message: "Employees who reports to managerId ${Id} are found.",
+                    response: list,
+                });
+            }
+            else {
+                res.send({
+                    status: 400,
+                    message: "Employees who reports to managerId ${Id} are not found."
+                });
+            }
+        }
+        catch (err) {
             res.send({
                 message: "Error.",
                 response: null,

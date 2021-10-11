@@ -15,82 +15,11 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.report = exports.add_Id = exports.present = exports.IsEmp = void 0;
+exports.Database = exports.emp_present = exports.check_Emp_level = exports.ValidateData = exports.AddEmployeeData = exports.AddManagerData = void 0;
 var fs = require("fs");
 var uuid_1 = require("uuid");
-function IsEmp(args) {
-    //console.log(args);
-    if ((typeof (args.managerId) == "string") || (typeof (args.managerId) == undefined)) {
-        console.log("true");
-    }
-    else {
-        console.log("false");
-    }
-    if ((typeof (args.id) == "string") && (typeof (args.name) == "string") && (typeof (args.emp_level) == "string") && (typeof (args.mobile) == "number")
-        && (typeof (args.date) == "string") && ((typeof (args.managerId) == "string") || (typeof (args.managerId) == undefined))) {
-        // console.log( typeof(args.id));
-        //console.log(typeof(args.date));
-        return true;
-        // console.log(x.subtr(1)); // 
-        // console.log(x.substr(1)); // 
-    }
-    else {
-        return false;
-    }
-}
-exports.IsEmp = IsEmp;
-function present(args) {
-    if (args == null) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-exports.present = present;
-// export function setAll(prev:Employee, Employeenew:Employee){
-//   let data = fs.readFileSync("employee_data.js");
-// 	data = JSON.parse(data);
-//   for (var i = 0; i < data.length; i++) {
-//     //console.log(data[i].name)
-//     //console.log(prev.name);
-//    // console.log(Employeenew.name);
-//       if( (prev.name != undefined) && (data[i].name == prev.name)) {
-//           data[i].name = Employeenew.name;
-//           console.log(prev.name);
-//           // console.log(Employeenew.name);
-//       }
-//       if( (prev.mobile != undefined) && (data[i].mob == prev.mobile)){
-//         data[i].mob = Employeenew.mobile; 
-//         console.log(prev.mobile)
-//       }
-//       if( (prev.email != undefined) && (data[i].email == prev.email)){
-//         data[i].email = Employeenew.email; 
-//         console.log(prev.email)
-//       }
-//       if( (prev.emp_level != undefined) && (data[i].emp_level == prev.emp_level)){
-//         data[i].emp_level = Employeenew.emp_level; 
-//         console.log(prev.emp_level)
-//       }
-//       if( (prev.date != undefined) && (data[i].date == prev.date)){
-//         data[i].date = Employeenew.date; 
-//         console.log(prev.date)
-//       }
-//       const stringifyData = JSON.stringify(data);
-// 			fs.writeFileSync("employee_data.js", stringifyData);
-//       console.log(data);
-//     }
-//   if (prev.mobile != null) {
-//   if( data[i].mobile == prev.mobile) {
-//         data[i].mobile = Employeenew.mobile;
-//     }
-//   }
-//     const stringifyData = JSON.stringify(data);
-// 	fs.writeFileSync("employee_data.js", stringifyData);
-//   console.log(data);
-//  }
-var add_Id = /** @class */ (function () {
-    function add_Id(name, emp_level, mobile, email, date) {
+var AddManagerData = /** @class */ (function () {
+    function AddManagerData(name, emp_level, mobile, email, date) {
         this.id = (0, uuid_1.v4)();
         this.name = name;
         this.emp_level = emp_level;
@@ -98,7 +27,7 @@ var add_Id = /** @class */ (function () {
         this.email = email;
         this.date = date;
     }
-    add_Id.prototype.add = function () {
+    AddManagerData.prototype.add = function () {
         var obj = {
             id: this.id,
             name: this.name,
@@ -109,17 +38,118 @@ var add_Id = /** @class */ (function () {
         };
         return obj;
     };
-    return add_Id;
+    return AddManagerData;
 }());
-exports.add_Id = add_Id;
-var report = /** @class */ (function (_super) {
-    __extends(report, _super);
-    function report(name, emp_level, mobile, email, date, managerId) {
+exports.AddManagerData = AddManagerData;
+var AddEmployeeData = /** @class */ (function (_super) {
+    __extends(AddEmployeeData, _super);
+    function AddEmployeeData(name, emp_level, mobile, email, date, managerId) {
         var _this = _super.call(this, name, emp_level, mobile, email, date) || this;
-        _this.Mentor = "Manager";
+        _this.Mentor = "";
         _this.managerId = managerId;
+        _this.Mentor = _this.find();
         return _this;
     }
-    return report;
-}(add_Id));
-exports.report = report;
+    AddEmployeeData.prototype.find = function () {
+        var name;
+        var user = new Database();
+        var data = user.getData();
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].id == this.managerId) {
+                name = data[i].name;
+            }
+        }
+        return name;
+    };
+    return AddEmployeeData;
+}(AddManagerData));
+exports.AddEmployeeData = AddEmployeeData;
+//check user gives valid data or not
+function ValidateData(args) {
+    if ((typeof (args.id) == "string") && (typeof (args.name) == "string") && (typeof (args.emp_level) == "string") && (typeof (args.mobile) == "number")
+        && (typeof (args.date) == "string") && ((typeof (args.managerId) == "string") || (args.managerId == undefined)) && (args.name != "") &&
+        (args.emp_level != "") && (args.email != "") && (args.date != "") && (args.mobile != 0) && (validateMob(args))
+        && (ValidateEmail(args))) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+exports.ValidateData = ValidateData;
+//check email is valid or not
+function ValidateEmail(args) {
+    var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (args.email.match(mailformat)) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+// check mobile is valid or not
+function validateMob(args) {
+    if (args.mobile.toString().length == 10) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+// check employee level is valid or not
+function check_Emp_level(args) {
+    //console.log(args.emp_level)
+    if ((args.emp_level == "Intern") || (args.emp_level == "Developer") || (args.emp_level == "Tester") || (args.emp_level == "Manager")) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+exports.check_Emp_level = check_Emp_level;
+//check employee is present or not 
+function emp_present(args) {
+    if (args == null) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+exports.emp_present = emp_present;
+//Read data and Write data
+var Database = /** @class */ (function () {
+    function Database() {
+    }
+    Database.prototype.getData = function () {
+        var data = fs.readFileSync("employee_data.js");
+        return JSON.parse(data);
+        //     const readFile = (file: string) =>{
+        //         return new Promise((resolve,reject)=>
+        // 	 fs.readFile(file,"utf-8",(err:any,data:string)=>{
+        //          if(err != null){
+        //              reject(err);
+        //              return;
+        //          }
+        //          resolve(data)
+        //         })
+        // 	//return JSON.parse(data);
+        // )}
+        // console.log(data)
+        // return data
+        //     let content:any ;
+        //  fs.readFile('employee_data.js', "utf-8",function read(err:any, data:any)  {
+        //     if (err) {
+        //         throw err;
+        //     }
+        //     content = data;
+        // }); 
+        // return content;
+    };
+    Database.prototype.saveData = function (data) {
+        var stringifyData = JSON.stringify(data);
+        fs.writeFileSync("employee_data.js", stringifyData);
+    };
+    return Database;
+}());
+exports.Database = Database;
