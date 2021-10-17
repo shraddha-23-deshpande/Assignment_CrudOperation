@@ -25,56 +25,64 @@ router.post('/add', async(req : Request,res: Response) =>
               //console.log(employees)
           }
 
-            let rest = employee.ValidateData(employees) //check information is valid or not.
-            console.log(employees)
-            console.log(rest)
-            if(rest == false){
+            let valid_data = employee.ValidateData(employees) //check information is valid or not.
+            let missing = employee.MissingField(employees) // check if there is missing field
+            let valid_emp_level = employee.check_Emp_level(emp_level) // check if employee_level is appropriate or not
+            let valid_mobile = employee.validateMob(mobile) //check mobile number
+            let valid_email = employee.ValidateEmail(email) // check email
+
+            if((valid_data== true) && (missing==true) && (valid_emp_level==true) && (valid_mobile==true) && (valid_email==true)) //if everything is fine
+            {
+                //Read data
+                let db = new Database()
+                let data = await db.getData()
+                            
+                data.push(employees);
+                //Save data
+                await db.saveData(data)
+
+                // console.log(data);
+
                 res.send({
-                    status: 400,
-                    message:"Enter valid data",
-                    response:null
-                    })
+                        status: 201,
+                        message :"Employee Added successfully",
+                        response :data
+                         });
                 }
-            else{
-
-                let check = employee.check_Emp_level(employees) // check employee position is appropriate or not.
-                if(check == false){
-                        res.send({
-                            status: 400,
-                            message:"Enter employee position from only these options- Manager, Tester, Developer and Intern.",
-                            response:null
-                            })
-                        }
-                    else{
-
-                            let emp = fs.readFileSync("employee_data.js");
-                            emp = JSON.parse(emp);
-                            
-                            //console.log(employees);
-                            
-
-                            emp.push(employees);
-                            //Save data
-                            const stringifyData = JSON.stringify(emp);
-                            fs.writeFileSync("employee_data.js", stringifyData);
-                            // console.log(data);
-
-                            //res.send("successfully added");
-                            res.send({
-                                status: 201,
-                                message :"Employee Added successfully",
-                                response :emp
-                            });
-                            }
+                else{
+                    let message ="";
+                    if(valid_data == false){
+                        message = message + "Please Enter Valid Data. "
                     }
-                }
-                catch (err) {
+                    if(valid_email == false){
+                        message = message + "Please Enter Valid Email. "
+                    }
+                    if(valid_mobile == false){
+                        message = message + "Please Enter Valid Mobile Number. "
+                    }
+                    if(valid_emp_level == false){
+                        message = message + "Enter employee position from only these options- Manager, Tester, Developer and Intern. "
+                    }
+                    if(missing == false){
+                        message = message + "Please Enter Missing Fields."
+                    }
                     res.send({
-                        message: `Error.`,
-                        response: null,
-                    });
+                        status: 201,
+                        message : message,
+                        response :null
+                         });
                 }
-            })
+
+    }
+    
+
+    catch (err) {
+            res.send({
+            message: `Error.`,
+            response: null,
+        });
+    }
+})
 
  router.get('/all', async(req:Request,res: Response) =>{
       
@@ -82,7 +90,7 @@ router.post('/add', async(req : Request,res: Response) =>
     try {
          let db = new Database()
          let data = await db.getData()
-         console.log(data)
+         //console.log(data)
         res.send({
             status:200,
             message :"All Employee Info",
@@ -106,12 +114,12 @@ router.get('/find/:id', async(req: Request,res: Response) =>{
 
                 //Get All Data
                let db = new Database()
-               let data = db.getData()
+               let data = await db.getData()
 			    
                //find id
                 let user = data.find((user: employee.Employee) => user.id == Id);
-                let check = employee.emp_present(user)
-                if(check == false)
+                //let check = employee.emp_present(user)
+                if(user != null)
                 {
                     res.send({
                         status:200,
@@ -139,13 +147,13 @@ router.delete('/delete/:id',async(req: Request,res: Response)=>{
         
             //Get all data
             let db = new Database()
-            let data = db.getData()
+            let data = await db.getData()
             
-            let user = data.find((user: employee.Employee) => user.id == Id);
+            let user = data.find((user: employee.Employee) => user.id == Id); // find user
             //console.log(user); 
 
-           let check = employee.emp_present(user)
-           if(check == true)
+           //let check = employee.emp_present(user)
+           if(user == null)
             {
 			res.send({
                 message: "Employee is not exist.",
@@ -154,7 +162,7 @@ router.delete('/delete/:id',async(req: Request,res: Response)=>{
           else{
         // var del = data.splice(user)
         // console.log(del);
-            var filtered = data.filter(function(item: { id: string; }) { 
+            var filtered = data.filter(function(item: { id: string; }) { /// delete data of employee
              return item.id != Id;  
            });
 
@@ -181,75 +189,89 @@ router.delete('/delete/:id',async(req: Request,res: Response)=>{
 
 router.patch('/update/:id',async(req: Request,res:Response)=>{
 
-    try{
+        try{
 
-        let empdata=req.body
-        const Id = req.params.id
-        //console.log(employee.id);
-
-        //Get all data
-        let db = new Database()
-        let data = db.getData()
-
-        //find info
-        
-        let user= data.findIndex((user: employee.Employee) => user.id == Id);
-        //console.log(user); 
-        let check = employee.emp_present(user)
-
-        //if not found
-        if(check == true)
-        {
-		res.send({
-            message: "Employee is Not Exist.",
-		});
-        }
-        else{
+            let empdata=req.body
+            const Id = req.params.id
+            //console.log(employee.id);
+    
+            //Get all data
+            let db = new Database()
+            let data = await db.getData()
+    
+            //find info
             
-            data[user] ={...data[user],...empdata}  // replace data using spread operator
-
-            let check = employee.ValidateData(data[user]) // check data is valid or not.
-            if(check==false){
-                res.send({
-                    status: 400,
-                    message:"enter valid data",
-                    response:null
-                    })
-                }
+            let user= data.findIndex((user: employee.Employee) => user.id == Id);
+            console.log(user); 
+    
+            //if not found
+            if(user == null)
+            {
+            res.send({
+                message: "Employee is Not Exist.",
+            });
+            }
             else{
-                let check = employee.check_Emp_level(data[user])  //check employee level is appropriate or not
-                if(check == false){
+                
+                data[user] ={...data[user],...empdata}  // replace data using spread operator
+                console.log(data[user]);
+                let valid_data = employee.ValidateData(data[user]) //check information is valid or not.
+             //console.log(valid_data);
+                let missing = employee.MissingField(data[user]) // check if there is missing field
+                let valid_emp_level = employee.check_Emp_level(data[user].emp_level)// check if employee_level is appropriate or not
+                let valid_mobile = employee.validateMob(data[user].mobile) //check mobile number
+                let valid_email = employee.ValidateEmail(data[user].email) // check email
+
+                if((valid_data== true) && (missing==true) && (valid_emp_level==true) && (valid_mobile==true) && (valid_email==true)) //if everything is fine
+                {
+                    //save data
+                    db.saveData(data)
+            
                     res.send({
-                        status: 400,
-                        message:"Enter employee position from only these options- Manager, Tester, Developer and Intern.",
-                        response:null
-                        })
+                    status:200,
+                    message: "employee data successfully Updated",
+                    resonse: data
+                    });
+                }
+
+            else{
+                let message ="";
+                    if(valid_data == false){
+                        message = message + "Please Enter Valid Data. "
                     }
-                else{
-
-                    //Save data
-                db.saveData(data)
+                    if(valid_email == false){
+                        message = message + "Please Enter Valid Email. "
+                    }
+                    if(valid_mobile == false){
+                        message = message + "Please Enter Valid Mobile Number. "
+                    }
+                    if(valid_emp_level == false){
+                        message = message + "Enter employee position from only these options- Manager, Tester, Developer and Intern. "
+                    }
+                    if(missing == false){
+                        message = message + "Please Enter Missing Fields."
+                    }
+                    res.send({
+                        status: 201,
+                        message : message,
+                        response :null
+                    });
+                }
                 
                 
-            	res.send({
-                status:200,
-				message: "employee data successfully Updated",
-                resonse: data
+            }
+            }
     
-			});
-        }
-        }
-
-		}} catch (err) {
-		// console.log(err)
-        res.send({
-            message: `Error.`,
-            response: null,
-        });
-		}
-
+     catch (err) {
+            // console.log(err)
+            res.send({
+                message: `Error.`,
+                response: null,
+            });
+            }
+    
+            
         
-    
 })
 
 router.get('/findListJunior/:id', async(req: Request,res: Response) =>{
@@ -259,7 +281,7 @@ router.get('/findListJunior/:id', async(req: Request,res: Response) =>{
                
                 //Get all data
                  let db = new Database()
-                 let data = db.getData()
+                 let data = await db.getData()
                  var i;
                  let list:any=[];
                  for(i=0;i<data.length;i++){
@@ -272,19 +294,19 @@ router.get('/findListJunior/:id', async(req: Request,res: Response) =>{
                 }
         
                 //console.log(list);
-                let check = employee.emp_present(list)
-                if(check == false)
+                
+                if(list != null)
                 {
                     res.send({
                         status:200,
-                        message: "Employees who reports to managerId ${Id} are found.",
+                        message: "Employees who reports to  given managerId  are found.",
                         response: list,
                     });
                 }
                 else{
                     res.send({
                         status: 400,
-                        message : "Employees who reports to managerId ${Id} are not found."
+                        message : "Employees who reports to given managerId are not found."
                     });
                 }
 		    }
