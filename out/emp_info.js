@@ -14,6 +14,25 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -50,11 +69,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Database = exports.check_Emp_level = exports.validateMob = exports.ValidateEmail = exports.MissingField = exports.ValidateData = exports.AddEmployeeData = exports.AddManagerData = void 0;
-var fs = require("fs");
-//import { AwaitKeyword } from "typescript";
+exports.Database = exports.ValidateData = exports.AddEmployeeData = exports.AddManagerData = void 0;
+var fs = __importStar(require("fs"));
 var uuid_1 = require("uuid");
+var util_1 = __importDefault(require("util"));
+var readFile = util_1.default.promisify(fs.readFile);
 var AddManagerData = /** @class */ (function () {
     function AddManagerData(name, emp_level, mobile, email, date) {
         this.id = (0, uuid_1.v4)();
@@ -71,79 +94,35 @@ var AddEmployeeData = /** @class */ (function (_super) {
     __extends(AddEmployeeData, _super);
     function AddEmployeeData(name, emp_level, mobile, email, date, managerId) {
         var _this = _super.call(this, name, emp_level, mobile, email, date) || this;
-        _this.Mentor = "";
         _this.managerId = managerId;
-        _this.Mentor = _this.find();
         return _this;
     }
-    AddEmployeeData.prototype.find = function () {
-        var name;
-        var data = fs.readFileSync("employee_data.js");
-        data = JSON.parse(data);
-        for (var i = 0; i < data.length; i++) {
-            if (data[i].id == this.managerId) {
-                name = data[i].name;
-            }
-        }
-        //console.log(name)
-        return name;
-    };
     return AddEmployeeData;
 }(AddManagerData));
 exports.AddEmployeeData = AddEmployeeData;
 //check user gives valid data or not
 function ValidateData(args) {
-    if ((typeof (args.id) == "string") && (typeof (args.name) == "string") && (typeof (args.emp_level) == "string") && (typeof (args.mobile) == "number")
-        && (typeof (args.date) == "string") && ((typeof (args.managerId) == "string") || (args.managerId == undefined))) {
-        return true;
+    var message = "";
+    var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    //console.log(args.name);
+    if (!((typeof (args.id) == "string") && (typeof (args.name) == "string") && (typeof (args.emp_level) == "string") && (typeof (args.mobile) == "number")
+        && (typeof (args.date) == "string") && ((typeof (args.managerId) == "string") || (args.managerId == undefined)) &&
+        (args.name != "") && (args.emp_level != "") && (args.email != "") && (args.date != ""))) {
+        message = message + "Plese enter valid data. ";
     }
-    else {
-        return false;
+    if (!(args.email.match(mailformat))) {
+        message = message + "Please enter valid mail. ";
     }
+    if (!(args.mobile.toString().length == 10)) {
+        message = message + "Please enter valid mobile number. ";
+    }
+    if (!((args.emp_level == "Intern") || (args.emp_level == "Developer") || (args.emp_level == "Tester") || (args.emp_level == "Manager"))) {
+        message = message + "Enter employee position from only these options- Manager, Tester, Developer and Intern. ";
+    }
+    //console.log(message)
+    return message;
 }
 exports.ValidateData = ValidateData;
-// check if there is any missing field
-function MissingField(args) {
-    if ((args.name != "") && (args.emp_level != "") && (args.email != "") && (args.date != "")) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-exports.MissingField = MissingField;
-//check email is valid or not
-function ValidateEmail(email) {
-    var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if (email.match(mailformat)) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-exports.ValidateEmail = ValidateEmail;
-// check mobile is valid or not
-function validateMob(mobile) {
-    if (mobile.toString().length == 10) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-exports.validateMob = validateMob;
-// check employee level is valid or not
-function check_Emp_level(emp_level) {
-    //console.log(args.emp_level)
-    if ((emp_level == "Intern") || (emp_level == "Developer") || (emp_level == "Tester") || (emp_level == "Manager")) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-exports.check_Emp_level = check_Emp_level;
 //Read data and Write data
 var Database = /** @class */ (function () {
     function Database() {
@@ -151,11 +130,10 @@ var Database = /** @class */ (function () {
     Database.prototype.getData = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve) {
-                        //setTimeout(() => {
+                return [2 /*return*/, new Promise(function (resolve, reject) {
                         (fs.readFile('employee_data.js', "utf-8", function read(err, data) {
                             if (err) {
-                                throw err;
+                                reject(err);
                             }
                             resolve(JSON.parse(data));
                         }));
@@ -165,16 +143,15 @@ var Database = /** @class */ (function () {
     };
     Database.prototype.saveData = function (data) {
         return __awaiter(this, void 0, void 0, function () {
-            var stringifyData;
             return __generator(this, function (_a) {
-                stringifyData = JSON.stringify(data);
-                //fs.writeFileSync("employee_data.js", stringifyData);
-                fs.writeFile('employee_data.js', stringifyData, function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                });
-                return [2 /*return*/];
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        var stringifyData = JSON.stringify(data);
+                        resolve(fs.writeFile('employee_data.js', stringifyData, function (err) {
+                            if (err) {
+                                reject(err);
+                            }
+                        }));
+                    })];
             });
         });
     };

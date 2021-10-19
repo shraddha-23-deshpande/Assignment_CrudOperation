@@ -1,15 +1,17 @@
-const express = require('express')
-const router = express.Router()
+import express from "express";
+//const router = express.Router()
 
 const app = express()
 
 app.use(express.json())
 
-const crud = require('./crudOp')
-app.use('/crudOp',crud)
+const routes = require('./router')
+app.use('/router',routes)
 
 
 app.listen(5000, () =>{
     console.log('server started')
 })
-module.exports = router
+app.use("/operation",routes);
+
+
