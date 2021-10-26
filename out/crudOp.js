@@ -69,7 +69,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var employee = __importStar(require("./emp_info"));
 var emp_info_1 = require("./emp_info");
 module.exports = {
-    //router.post('/add', async(req : Request,res: Response) =>
     addEmp: function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
             var _a, name, emp_level, mobile, email, date, managerId, employees, employees, valid_data, db, data, err_1;
@@ -81,12 +80,11 @@ module.exports = {
                     case 1:
                         _b.trys.push([1, 6, , 7]);
                         if (emp_level === "Manager") {
-                            employees = new employee.AddManagerData(name, emp_level, mobile, email, date);
-                            // console.log(employees)
+                            employees = new employee.Info(name, emp_level, mobile, email, date);
                         }
                         else {
                             if (managerId != undefined) {
-                                employees = new employee.AddEmployeeData(name, emp_level, mobile, email, date, managerId);
+                                employees = new employee.subInfo(name, emp_level, mobile, email, date, managerId);
                             }
                             else {
                                 res.send({
@@ -95,7 +93,6 @@ module.exports = {
                                     response: null
                                 });
                             }
-                            //console.log(employees)
                         }
                         valid_data = employee.ValidateData(employees) //check data is valid or not.
                         ;
@@ -106,13 +103,10 @@ module.exports = {
                         data = _b.sent();
                         data.push(employees);
                         //Save data
-                        return [4 /*yield*/, db.saveData(data)
-                            // console.log(data);
-                        ];
+                        return [4 /*yield*/, db.saveData(data)];
                     case 3:
                         //Save data
                         _b.sent();
-                        // console.log(data);
                         res.send({
                             status: 201,
                             message: "Employee Added successfully",
@@ -139,7 +133,6 @@ module.exports = {
             });
         });
     },
-    //router.get('/all', async(req:Request,res: Response) =>{
     allEmp: function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
             var db, data, err_2;
@@ -172,8 +165,7 @@ module.exports = {
             });
         });
     },
-    //router.get('/find/:id', async(req: Request,res: Response) =>{
-    findOne: function (req, res) {
+    findEmp: function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
             var Id_1, db, data, user, err_3;
             return __generator(this, function (_a) {
@@ -182,13 +174,10 @@ module.exports = {
                         _a.trys.push([0, 2, , 3]);
                         Id_1 = (req.params.id);
                         db = new emp_info_1.Database();
-                        return [4 /*yield*/, db.getData()
-                            //find id
-                        ];
+                        return [4 /*yield*/, db.getData()];
                     case 1:
                         data = _a.sent();
                         user = data.find(function (user) { return user.id == Id_1; });
-                        //let check = employee.emp_present(user)
                         if (user != null) {
                             res.send({
                                 status: 200,
@@ -228,8 +217,6 @@ module.exports = {
                     case 1:
                         data = _a.sent();
                         user = data.find(function (user) { return user.id == Id_2; });
-                        //console.log(user); 
-                        //let check = employee.emp_present(user)
                         if (user == null) {
                             res.send({
                                 message: "Employee is not exist.",
@@ -270,32 +257,20 @@ module.exports = {
                         empdata = req.body;
                         Id_3 = req.params.id;
                         db = new emp_info_1.Database();
-                        return [4 /*yield*/, db.getData()
-                            //find info
-                        ];
+                        return [4 /*yield*/, db.getData()];
                     case 1:
                         data = _a.sent();
                         user = data.findIndex(function (user) { return user.id == Id_3; });
                         console.log(user);
-                        //if not found
                         if (user == null) {
                             res.send({
                                 message: "Employee is Not Exist.",
                             });
                         }
                         else {
-                            data[user] = __assign(__assign({}, data[user]), empdata); // replace data using spread operator
-                            console.log(data[user]);
-                            valid_data = employee.ValidateData(data[user]) //check information is valid or not.
-                            ;
-                            //console.log(valid_data);
-                            // let missing = employee.MissingField(data[user]) // check if there is missing field
-                            // let valid_emp_level = employee.check_Emp_level(data[user].emp_level)// check if employee_level is appropriate or not
-                            // let valid_mobile = employee.validateMob(data[user].mobile) //check mobile number
-                            // let valid_email = employee.ValidateEmail(data[user].email) // check email
-                            // if((valid_data== true) && (missing==true) && (valid_emp_level==true) && (valid_mobile==true) && (valid_email==true)) //if everything is fine
+                            data[user] = __assign(__assign({}, data[user]), empdata);
+                            valid_data = employee.ValidateData(data[user]);
                             if (valid_data == "") {
-                                //save data
                                 db.saveData(data);
                                 res.send({
                                     status: 200,
@@ -304,22 +279,6 @@ module.exports = {
                                 });
                             }
                             else {
-                                // let message ="";
-                                //     if(valid_data == false){
-                                //         message = message + "Please Enter Valid Data. "
-                                //     }
-                                //     if(valid_email == false){
-                                //         message = message + "Please Enter Valid Email. "
-                                //     }
-                                //     if(valid_mobile == false){
-                                //         message = message + "Please Enter Valid Mobile Number. "
-                                //     }
-                                //     if(valid_emp_level == false){
-                                //         message = message + "Enter employee position from only these options- Manager, Tester, Developer and Intern. "
-                                //     }
-                                //     if(missing == false){
-                                //         message = message + "Please Enter Missing Fields."
-                                //     }
                                 res.send({
                                     status: 201,
                                     message: valid_data,
@@ -330,7 +289,6 @@ module.exports = {
                         return [3 /*break*/, 3];
                     case 2:
                         err_5 = _a.sent();
-                        // console.log(err)
                         res.send({
                             message: "Error.",
                             response: null,
@@ -341,8 +299,7 @@ module.exports = {
             });
         });
     },
-    //router.get('/findListJunior/:id', async(req: Request,res: Response) =>{
-    findJunior: function (req, res) {
+    findSubordinate: function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
             var Id, db, data, i, list, err_6;
             return __generator(this, function (_a) {
@@ -358,10 +315,8 @@ module.exports = {
                         for (i = 0; i < data.length; i++) {
                             if (data[i].managerId == Id) {
                                 list.push(data[i]);
-                                //console.log("hi",list)  
                             }
                         }
-                        //console.log(list);
                         if (list.length > 0) {
                             res.send({
                                 status: 200,

@@ -69,17 +69,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Database = exports.ValidateData = exports.AddEmployeeData = exports.AddManagerData = void 0;
+exports.Database = exports.ValidateData = exports.subInfo = exports.Info = void 0;
 var fs = __importStar(require("fs"));
 var uuid_1 = require("uuid");
-var util_1 = __importDefault(require("util"));
-var readFile = util_1.default.promisify(fs.readFile);
-var AddManagerData = /** @class */ (function () {
-    function AddManagerData(name, emp_level, mobile, email, date) {
+var Info = /** @class */ (function () {
+    function Info(name, emp_level, mobile, email, date) {
         this.id = (0, uuid_1.v4)();
         this.name = name;
         this.emp_level = emp_level;
@@ -87,24 +82,23 @@ var AddManagerData = /** @class */ (function () {
         this.email = email;
         this.date = date;
     }
-    return AddManagerData;
+    return Info;
 }());
-exports.AddManagerData = AddManagerData;
-var AddEmployeeData = /** @class */ (function (_super) {
-    __extends(AddEmployeeData, _super);
-    function AddEmployeeData(name, emp_level, mobile, email, date, managerId) {
+exports.Info = Info;
+var subInfo = /** @class */ (function (_super) {
+    __extends(subInfo, _super);
+    function subInfo(name, emp_level, mobile, email, date, managerId) {
         var _this = _super.call(this, name, emp_level, mobile, email, date) || this;
         _this.managerId = managerId;
         return _this;
     }
-    return AddEmployeeData;
-}(AddManagerData));
-exports.AddEmployeeData = AddEmployeeData;
+    return subInfo;
+}(Info));
+exports.subInfo = subInfo;
 //check user gives valid data or not
 function ValidateData(args) {
     var message = "";
     var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    //console.log(args.name);
     if (!((typeof (args.id) == "string") && (typeof (args.name) == "string") && (typeof (args.emp_level) == "string") && (typeof (args.mobile) == "number")
         && (typeof (args.date) == "string") && ((typeof (args.managerId) == "string") || (args.managerId == undefined)) &&
         (args.name != "") && (args.emp_level != "") && (args.email != "") && (args.date != ""))) {
@@ -119,7 +113,6 @@ function ValidateData(args) {
     if (!((args.emp_level == "Intern") || (args.emp_level == "Developer") || (args.emp_level == "Tester") || (args.emp_level == "Manager"))) {
         message = message + "Enter employee position from only these options- Manager, Tester, Developer and Intern. ";
     }
-    //console.log(message)
     return message;
 }
 exports.ValidateData = ValidateData;

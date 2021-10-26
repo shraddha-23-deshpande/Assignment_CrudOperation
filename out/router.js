@@ -1,10 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var crudOp = require('./crudOp');
-router.post('/add', crudOp.addEmp);
-router.get('/all', crudOp.allEmp);
-router.get('/find/:id', crudOp.findOne);
-router.delete('/delete/:id', crudOp.deleteEmp);
-router.patch('/update/:id', crudOp.updateEmp);
-router.get('/findjunior/:id', crudOp.findJunior);
+router.get('/allData', crudOp.allEmp);
+router.get('/findEmployee/:id', crudOp.findEmp);
+router.get('/findSubordinate/:id', crudOp.findSubordinate);
+router.post('/addEmployee', crudOp.addEmp);
+router.delete('/deleteEmployee/:id', crudOp.deleteEmp);
+router.patch('/updateEmployee/:id', crudOp.updateEmp);
 module.exports = router;
